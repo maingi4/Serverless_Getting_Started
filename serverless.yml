@@ -1,0 +1,56 @@
+service: tokenGenerator
+package:
+    artifact: publish.zip
+provider:
+  name: aws
+  runtime: dotnetcore1.0
+  stage: ${opt:stage} #read from console input
+  region: us-west-2
+  profile: personal #this is the AWS credentials profile, change this.. or pass AWS credentials in the command line (not recommended)
+  role: arn:aws:iam::<aws account id>:role/serverless_getting_started
+  memorySize: 128 # Overwrite the default memory size. Default is 1024
+  timeout: 100 #default is 6
+  #deploymentBucket: beats.services.${self:provider.region}.deploys #I recommend leave this commented out, serverless will create a bucket for you if this is not given
+  versionFunctions: false
+  stackTags:
+   Environment: ${opt:stage} #helpful for billing
+  stackPolicy: # Optional CF stack policy. The example below allows updates to all resources except deleting/replacing EC2 instances (use with caution!)
+    - Effect: Allow
+      Principal: "*"
+      Action: "Update:*"
+      Resource: "*"
+    - Effect: Deny
+      Principal: "*"
+      Action:
+        - Update:Replace
+        - Update:Delete
+      Condition:
+        StringEquals:
+          ResourceType:
+            - AWS::EC2::Instance
+
+functions:
+  echoGenerator:
+    name: ${opt:stage}echoGenerator
+    handler: Serverless_Getting_Started::Serverless.Getting.Started.LambdaEntryPoint::FunctionHandlerAsync
+    events:
+      - http:
+          path: echo
+          method: get
+
+# The "Resources" your "Functions" use.  Raw AWS CloudFormation goes in here.
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${opt:stage}Users
+        AttributeDefinitions:
+          - AttributeName: Id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: Id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
