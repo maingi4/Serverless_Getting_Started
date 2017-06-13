@@ -1,0 +1,22 @@
+version: 0.1
+
+phases:
+    install:
+         commands:
+            - apt-get -y update
+            - apt-get -y install zip
+            - npm install -g serverless@1.9.0
+    build:
+         commands:
+            - dotnet restore
+            - dotnet publish -c Release -o out
+            - cd out && zip -r ../publish.zip ./*
+    post_build:
+         commands:
+            - serverless deploy --stage $env --region us-east-1 --verbose
+
+artifacts:
+    files:
+         - serverless.yml
+         - publish.zip
+    discard-paths: yes
