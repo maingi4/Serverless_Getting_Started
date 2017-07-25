@@ -7,7 +7,7 @@ provider:
   stage: ${opt:stage} #read from console input
   region: us-west-2
   profile: personal #this is the AWS credentials profile, change this.. or pass AWS credentials in the command line (not recommended)
-  role: arn:aws:iam::<my aws accid>:role/serverless_getting_started
+  role: arn:aws:iam::522390200088:role/serverless_getting_started
   memorySize: 128 # Overwrite the default memory size. Default is 1024
   timeout: 100 #default is 6
   #deploymentBucket: mybucketname.${self:provider.region}.deploys #I recommend leave this commented out, serverless will create a bucket for you if this is not given
